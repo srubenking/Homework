@@ -55,7 +55,8 @@ def splitString(s):
     Args:
         s: a sentence
     '''
-    return re.split(r'(\w+)',s)
+    #return re.split(r'(www.+\s|http.+\s|\w+)',s)
+    return re.split(r'(\w)',s)
 
 def pigLatinWord(w):
     '''
@@ -104,8 +105,8 @@ def pigLatin(text):
             pigList.append(pigLatinWord(word))
         else:
             pigList.append(word.upper())
-            if re.match(abc, word):
-                if word not in notInDict: #adds the non-matched item to the notInDict list if it is a word (rather than space or punctuation)
+            if re.match(abc, word): #adds the untranslatable item to the notInDict list if it is a word (rather than space or punctuation)
+                if word not in notInDict:
                     notInDict.append(word)
     return u''.join(pigList) #returns the list, joined into a string
 
@@ -115,15 +116,17 @@ def pigFileRead(filename,n):
     lines = [line.decode('utf-8').strip() for line in file.readlines(f)]
     for line in lines[0:n]: #runs pigLatin for the first n lines of f
         print pigLatin(line)
+    print '\n---------------------------------------------------------------------\n'
     choice = raw_input("Would you like to the see the words that weren't translated (y/n)? ")
-    if choice is 'Y' or 'y':
-        for line in lines[0:n]:
-            print notInDict
+    if choice is 'Y' or 'y': #if the user says yes to the prompt, prints out the untranslated words with spaces in between
+        for item in notInDict:
+            print item + ',',
 
 
 if __name__ == "__main__":
     global notInDict
     notInDict = [] #initializes a list to hold words that weren't in the dictionary
-
-    pigFileRead('twain',10)
+    fName = raw_input('Enter the path to the file you would like to load: ')
+    lineNum = int(input('Now enter the number of lines you would like to translate: '))
+    pigFileRead(fName,lineNum)
     #choice = raw_input('Do you want to translate (T) or see the list of exceptions (E)? ')
