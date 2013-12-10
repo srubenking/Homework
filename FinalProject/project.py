@@ -55,8 +55,12 @@ def splitString(s):
     Args:
         s: a sentence
     '''
-    #return re.split(r'(www.+\s|http.+\s|\w+)',s)
-    return re.split(r'(\w)',s)
+    splitRE = re.compile(u'''
+                        ([\.](?!\w)|   #periods if they aren't followed by a word character
+                        [\s(),\-:;"﻿]|   #punctuation to always split on
+                        \'(?!\w)      #apostrophes if they don't have a word character after them
+                        )''',re.VERBOSE)
+    return splitRE.split(s)
 
 def pigLatinWord(w):
     '''
@@ -111,22 +115,34 @@ def pigLatin(text):
     return u''.join(pigList) #returns the list, joined into a string
 
 def pigFileRead(filename,n):
+    '''
+    takes a string that is a filename or path to a filename and an int for the number of lines to print
+
+    Args:
+        filename: a string
+        n: an int
+
+    Returns:
+        nothing, it runs pigLatin on each line for the number of lines specified by arg n
+    '''
     f = open(filename,'r')
 
-    lines = [line.decode('utf-8').strip() for line in file.readlines(f)]
+    lines = [line.decode('utf-8').strip() for line in file.readlines(f)] #decodes the lines to unicode and splits each line of the file into a list
+    f.close()
     for line in lines[0:n]: #runs pigLatin for the first n lines of f
         print pigLatin(line)
     print '\n---------------------------------------------------------------------\n'
     choice = raw_input("Would you like to the see the words that weren't translated (y/n)? ")
-    if choice is 'Y' or 'y': #if the user says yes to the prompt, prints out the untranslated words with spaces in between
+    if choice in ['Y','y']: #if the user says yes to the prompt, prints out the untranslated words with spaces in between
         for item in notInDict:
-            print item + ',',
-
+            if item is not notInDict[-1]:
+                print item + ',',
+            else:
+                print item
 
 if __name__ == "__main__":
     global notInDict
     notInDict = [] #initializes a list to hold words that weren't in the dictionary
     fName = raw_input('Enter the path to the file you would like to load: ')
     lineNum = int(input('Now enter the number of lines you would like to translate: '))
-    pigFileRead(fName,lineNum)
-    #choice = raw_input('Do you want to translate (T) or see the list of exceptions (E)? ')
+    pigFileRead(fName,lineNum) #uses the user input to translate the desired file to the number of lines the user desires
