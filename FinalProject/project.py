@@ -85,7 +85,7 @@ def pigLatinWord(w):
             if ipaWord[n] in vowels:
                 return ipaWord[n:] + ipaWord[0:n] + u'ej' #after it finds a vowel, moves the onset to word final position then appends 'ej'
 
-def pigLatin(text):
+def pigLatin(text,c):
     '''
 	takes string 'text' and runs pigLatinWord on each word if they are in cmdict
 
@@ -104,18 +104,29 @@ def pigLatin(text):
             pigList.append(pigLatinWord(word))
         else:
             pigList.append(word.upper())
-            if re.match(abc, word): #adds the non-matched item to the notInDict list if it is a word (rather than space or punctuation)
-                notInDict.append(word)
-    if choice == 'T':
+            if re.match(abc, word):
+                if word not in notInDict: #adds the non-matched item to the notInDict list if it is a word (rather than space or punctuation)
+                    notInDict.append(word)
+    if c is not 'y' and 'Y':
         return u''.join(pigList) #returns the list, joined into a string
     else:
         return u'\n'.join(notInDict)
+
+def pigFileRead(filename,n):
+    f = open(filename,'r')
+
+    lines = [line.decode('utf-8').strip() for line in file.readlines(f)]
+    for line in lines[0:n]: #runs pigLatin for the first n lines of f
+        print pigLatin(line,'n')
+    choice = raw_input("Would you like to the see the words that weren't translated (y/n)? ")
+    if choice is 'Y' or 'y':
+        for line in lines[0:n]:
+            print notInDict
+
+
 if __name__ == "__main__":
     global notInDict
     notInDict = [] #initializes a list to hold words that weren't in the dictionary
-    choice = raw_input('Do you want to translate (T) or see the list of exceptions (E)? ')
-    f = open('twain','r')
 
-    lines = [line.decode('utf-8').strip() for line in file.readlines(f)]
-    for line in lines: #demonstrates the program for the first 10 lines of 'twain'
-        print pigLatin(line)
+    pigFileRead('twain',10)
+    #choice = raw_input('Do you want to translate (T) or see the list of exceptions (E)? ')
